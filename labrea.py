@@ -6,20 +6,10 @@ from scapy.all import *
 
 version = 0.1
 
-def determineMACAddress():
-  localMACs = [get_if_hwaddr(i) for i in get_if_list()]
+def determineIPAddress():
+  localIPs = [get_if_addr(i) for i in get_if_list()]
   # Assume the last one is the MAC to send from.
-  return localMACs[-1]
-
-def spoofIsAt(pkt):
-  isAt = ARP()
-  isAt.hwdst=pkt[ARP].hwsrc
-  isAt.pdst=pkt[ARP].psrc
-  isAt.psrc=pkt[ARP].pdst
-  isAt.hwsrc=sourceMAC
-  isAt.op=2 #is-at
-  print("Taking over {0}!".format(isAt.psrc))
-  send(isAt, verbose = 0)
+  return localIPs[-1]
 
 def spoofSYNACK(pkt):
   # Spoof the SYN ACK with a small window
@@ -36,6 +26,7 @@ def spoofSYNACK(pkt):
   response[TCP].flags = 0x12
   send(response, verbose = 0)
   answered[response[IP].dst] = response[TCP].sport
+  print("Spoofing {0}".format(pkt[TCP].dport))
 
 
 def spoofACK(pkt):
@@ -53,28 +44,23 @@ def spoofACK(pkt):
   response[TCP].window = 0
   response[TCP].flags = 0x10
   send(response, verbose = 0)
-
+  print("Spoofing {0}".format(pkt[TCP].dport))
 
 
 def packet_received(pkt):
-  if pkt[Ether].src != sourceMAC:
-    if ARP in pkt and pkt[ARP].op == 1: #who-has
-      if(pkt[ARP].pdst in whohases and not pkt[Ether].src==sourceMAC):
-        now = time.time()
-        delta = now - whohases[pkt[ARP].pdst]
-        if(delta <= 1.25):
-          spoofIsAt(pkt)
-      whohases[pkt[ARP].pdst] = time.time()
-    if TCP in pkt and (pkt[TCP].flags & 0x3f) == 0x02:
-      spoofSYNACK(pkt)
-    if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
-      spoofACK(pkt)
+  #pkt.show()
+  if IP in pkt:
+    if pkt[IP].src != sourceIP:
+      if TCP in pkt and (pkt[TCP].flags & 0x3f) == 0x02:
+        spoofSYNACK(pkt)
+      if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
+        spoofACK(pkt)
 
 answered = dict()
 whohases=dict()
-sourceMAC = determineMACAddress()
+sourceIP = determineIPAddress()
 print("Scapified LaBrea")
 print("Version {0} - Copyright David Hoelzer / Enclave Forensics, Inc.".format(version))
-print("Using {0} as the source MAC.  If this is wrong, edit the code.".format(sourceMAC))
+print("Using {0} as the source MAC.  If this is wrong, edit the code.".format(sourceIP))
 sniff(prn=packet_received, store=0)
 #tviels
