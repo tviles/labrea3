@@ -9,7 +9,6 @@ version = 0.1
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
   # Assume the last one is the MAC to send from.
-  print(localIPs[-1])
   return localIPs[-1]
 
 def spoofIsAt(pkt):
@@ -39,6 +38,7 @@ def spoofSYNACK(pkt):
   response[TCP].flags = 0x12
   send(response, verbose = 0)
   answered[response[IP].dst] = response[TCP].sport
+  print("Spoofing {0}".format(pkt[TCP].dport))
 
 
 def spoofACK(pkt):
@@ -57,22 +57,17 @@ def spoofACK(pkt):
   response[TCP].window = 0
   response[TCP].flags = 0x10
   send(response, verbose = 0)
-
+  print("Spoofing {0}".format(pkt[TCP].dport))
 
 
 def packet_received(pkt):
-  if pkt[IP].src != sourceIP:
-    if ARP in pkt and pkt[ARP].op == 1: #who-has
-      if(pkt[ARP].pdst in whohases and not pkt[IP].src==sourceIP):
-        now = time.time()
-        delta = now - whohases[pkt[ARP].pdst]
-        if(delta <= 1.25):
-          spoofIsAt(pkt)
-      whohases[pkt[ARP].pdst] = time.time()
-    if TCP in pkt and (pkt[TCP].flags & 0x3f) == 0x02:
-      spoofSYNACK(pkt)
-    if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
-      spoofACK(pkt)
+  #pkt.show()
+  if IP in pkt:
+    if pkt[IP].src != sourceIP:
+      if TCP in pkt and (pkt[TCP].flags & 0x3f) == 0x02:
+        spoofSYNACK(pkt)
+      if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
+        spoofACK(pkt)
 
 answered = dict()
 whohases=dict()
