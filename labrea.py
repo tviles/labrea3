@@ -4,26 +4,14 @@ from scapy.all import *
 from scapy.config import conf
 conf.use_pcap = True
 
-version = 0.1
+version = 0.2
 
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
   # Assume the last one is the MAC to send from.
   return localIPs[-1]
 
-def spoofIsAt(pkt):
-  print("spoofIsAt")
-  isAt = ARP()
-  isAt.hwdst=pkt[ARP].hwsrc
-  isAt.pdst=pkt[ARP].psrc
-  isAt.psrc=pkt[ARP].pdst
-  isAt.hwsrc=sourceIP
-  isAt.op=2 #is-at
-  print("Taking over {0}!".format(isAt.psrc))
-  send(isAt, verbose = 0)
-
 def spoofSYNACK(pkt):
-  print("spoofSYNACK")
   # Spoof the SYN ACK with a small window
   if (pkt[IP].src in answered and answered[pkt[IP].src] == pkt[IP].dport):
     return
@@ -42,7 +30,6 @@ def spoofSYNACK(pkt):
 
 
 def spoofACK(pkt):
-  print("spoofACK")
   # ACK anything that gets sent back with a zero window
   response = IP()/TCP()
   response[IP].src = pkt[IP].dst
