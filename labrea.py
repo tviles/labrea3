@@ -1,5 +1,3 @@
-
-# I am awesome
 import sys
 import random
 from scapy.all import *
@@ -77,4 +75,3 @@ print("Scapified LaBrea")
 print("Version {0} - Copyright David Hoelzer / Enclave Forensics, Inc.".format(version))
 print("Using {0} as the source MAC.  If this is wrong, edit the code.".format(sourceMAC))
 sniff(prn=packet_received, store=0)
-#tviels
