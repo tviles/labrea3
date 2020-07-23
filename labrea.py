@@ -8,7 +8,7 @@ version = 0.2
 
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
-  # Assume the last one is the MAC to send from.
+  # Assume the last one is the IP to send from.
   return localIPs[-1]
 
 def spoofSYNACK(pkt):
@@ -26,8 +26,7 @@ def spoofSYNACK(pkt):
   response[TCP].flags = 0x12
   send(response, verbose = 0)
   answered[response[IP].dst] = response[TCP].sport
-  print("Spoofing {0}".format(pkt[TCP].dport))
-
+  print("SYNACK spoofing TCP {0} to {1}".format(pkt[TCP].dport,pkt[IP].src))
 
 def spoofACK(pkt):
   # ACK anything that gets sent back with a zero window
@@ -44,8 +43,7 @@ def spoofACK(pkt):
   response[TCP].window = 0
   response[TCP].flags = 0x10
   send(response, verbose = 0)
-  print("Spoofing {0}".format(pkt[TCP].dport))
-
+  print("ACK spoofing TCP {0} to {1}".format(pkt[TCP].dport,pkt[IP].src))
 
 def packet_received(pkt):
   #pkt.show()
@@ -57,9 +55,9 @@ def packet_received(pkt):
         spoofACK(pkt)
 
 answered = dict()
-whohases=dict()
 sourceIP = determineIPAddress()
-print("Scapified LaBrea")
-print("Version {0} - Copyright David Hoelzer / Enclave Forensics, Inc.".format(version))
-print("Using {0} as the source MAC.  If this is wrong, edit the code.".format(sourceIP))
+print("Scapified LaBrea Modified to Honeypot")
+print("Version {0} - Modified Copyright Grant Priewe & Tyler Viles".format(version))
+print("Original Copyright David Hoelzer / Enclave Forensics, Inc.")
+print("Using {0} as the source IP.  If this is wrong, edit the code.".format(sourceIP))
 sniff(prn=packet_received, store=0)
