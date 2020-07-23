@@ -1,8 +1,6 @@
 import sys
 import random
 from scapy.all import *
-from scapy.config import conf
-conf.use_pcap = True
 
 version = 0.2
 
