@@ -6,8 +6,14 @@ version = 0.2
 
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
+  interface = 'eth0'
+
+  if (sys.platform == 'darwin'):
+      interface = 'en0'
+  if(sys.platform == 'linux'):
+      interface = 'eth0'
   # Assume the last one is the IP to send from.
-  return localIPs[-1]
+  return localIPs[get_if_list().index(interface)]
 
 def spoofSYNACK(pkt):
   # Spoof the SYN ACK with a small window
