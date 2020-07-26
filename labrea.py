@@ -65,4 +65,3 @@ print("Version {0} - Modified Copyright Grant Priewe & Tyler Viles".format(versi
 print("Original Copyright David Hoelzer / Enclave Forensics, Inc.")
 print("Using {0} as the source IP.  If this is wrong, edit the code.".format(sourceIP))
 sniff(prn=packet_received, store=0)
-#Testing
