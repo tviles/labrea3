@@ -1,17 +1,41 @@
-import sys
-import random
+import random, mysql.connector
 from scapy.all import *
 from scapy.config import conf
 conf.use_pcap = True
 
-version = 0.2
+version = 0.3
+
+dbini = {}
+with open('labrea.ini') as ini:
+  for line in ini:
+    (k, v) = line.rstrip().split("=")
+    dbini[k] = v
+
+mydb = mysql.connector.connect(
+  host=dbini["host"],
+  user=dbini["user"],
+  password=dbini["password"],
+  database=dbini["database"]
+  )
+
+mycursor = mydb.cursor()
+
+sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
+ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
+ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, \
+tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, \
+tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
+%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+
 
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
   # Assume the last one is the IP to send from.
   return localIPs[-1]
 
+
 def spoofSYNACK(pkt):
+  print(ls(pkt))
   # Spoof the SYN ACK with a small window
   if (pkt[IP].src in answered and answered[pkt[IP].src] == pkt[IP].dport):
     return
@@ -27,8 +51,11 @@ def spoofSYNACK(pkt):
   send(response, verbose = 0)
   answered[response[IP].dst] = response[TCP].sport
   print("SYNACK spoofing TCP {0} to {1}".format(pkt[TCP].dport,pkt[IP].src))
+  logging(pkt)
+
 
 def spoofACK(pkt):
+  print(ls(pkt))
   # ACK anything that gets sent back with a zero window
   response = IP()/TCP()
   response[IP].src = pkt[IP].dst
@@ -44,6 +71,19 @@ def spoofACK(pkt):
   response[TCP].flags = 0x10
   send(response, verbose = 0)
   print("ACK spoofing TCP {0} to {1}".format(pkt[TCP].dport,pkt[IP].src))
+  logging(pkt)
+
+
+def logging(pkt):
+  val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, \
+  pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, \
+  pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, \
+  pkt[IP].options, pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, \
+  pkt[TCP].dataofs, pkt[TCP].reserved, pkt[TCP].flags, pkt[TCP].window, \
+  pkt[TCP].chksum, pkt[TCP].urgptr, pkt[TCP].options, pkt[Raw].load)
+  mycursor.execute(sql, val)
+  mydb.commit()
+
 
 def packet_received(pkt):
   #pkt.show()
@@ -53,6 +93,7 @@ def packet_received(pkt):
         spoofSYNACK(pkt)
       if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
         spoofACK(pkt)
+
 
 answered = dict()
 sourceIP = determineIPAddress()
