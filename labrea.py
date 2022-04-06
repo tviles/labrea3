@@ -6,7 +6,7 @@ conf.use_pcap = True
 version = 0.3
 
 dbini = {}
-with open('labrea.ini') as ini:
+with open("labrea.ini") as ini:
   for line in ini:
     (k, v) = line.rstrip().split("=")
     dbini[k] = v
@@ -20,12 +20,12 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
-ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
-ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, \
-tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, \
-tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
-%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, "\
+"ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, "\
+"ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, "\
+"tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, "\
+"tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, "\
+"%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
 
 
 def determineIPAddress():
@@ -75,12 +75,12 @@ def spoofACK(pkt):
 
 
 def logging(pkt):
-  val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, \
-  pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, \
-  pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, \
-  pkt[IP].options, pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, \
-  pkt[TCP].dataofs, pkt[TCP].reserved, pkt[TCP].flags, pkt[TCP].window, \
-  pkt[TCP].chksum, pkt[TCP].urgptr, pkt[TCP].options, pkt[Raw].load)
+  val = "(pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, "\
+  "pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, "\
+  "pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, "\
+  "pkt[IP].options, pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, "\
+  "pkt[TCP].dataofs, pkt[TCP].reserved, pkt[TCP].flags, pkt[TCP].window, "\
+  "pkt[TCP].chksum, pkt[TCP].urgptr, pkt[TCP].options, pkt[Raw].load)"
   mycursor.execute(sql, val)
   mydb.commit()
 
