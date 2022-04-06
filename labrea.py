@@ -20,13 +20,6 @@ mydb = mysql.connector.connect(
 
 mycursor = mydb.cursor()
 
-sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
-ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
-ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, \
-tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, \
-tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
-%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-
 
 def determineIPAddress():
   localIPs = [get_if_addr(i) for i in get_if_list()]
@@ -75,6 +68,20 @@ def spoofACK(pkt):
 
 
 def logging(pkt):
+  if Raw in pkt:
+    sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
+    ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
+    ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, \
+    tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, \
+    tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
+    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+  else:
+    sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
+    ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
+    ip.src, ip.dst, ip.options, tcp.sport, tcp.dport, tcp.seq, tcp.ack, \
+    tcp.dataofs, tcp.reserved, tcp.flags, tcp.window, tcp.chksum, tcp.urgptr, \
+    tcp.options) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
+    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
   val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, 
   pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, 
   pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, 
