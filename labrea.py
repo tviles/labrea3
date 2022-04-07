@@ -1,4 +1,4 @@
-import random, mysql.connector
+import random, mysql.connector, datetime
 from scapy.all import *
 from scapy.config import conf
 conf.use_pcap = True
@@ -67,11 +67,11 @@ def spoofACK(pkt):
 
 def logging(pkt):
   if Raw in pkt:
-    sql = "INSERT INTO packets (`ether.dst`, `ether.src`, `ether.type`, `ip.version`, \
+    sql = "INSERT INTO packets (`timestamp`, `ether.dst`, `ether.src`, `ether.type`, `ip.version`, \
     `ip.ihl`, `ip.tos`, `ip.len`, `ip.id`, `ip.flags`, `ip.frag`, `ip.ttl`, `ip.proto`, `ip.chksum`, \
     `ip.src`, `ip.dst`, `ip.options`, `tcp.sport`, `tcp.dport`, `tcp.seq`, `tcp.ack`, \
     `tcp.dataofs`, `tcp.reserved`, `tcp.flags`, `tcp.window`, `tcp.chksum`, `tcp.urgptr`, \
-    `tcp.options`, `raw.load`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
+    `tcp.options`, `raw.load`) VALUES (" + datetime.datetime.now() + ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, 
     pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, str(pkt[IP].flags), pkt[IP].frag, 
@@ -80,11 +80,11 @@ def logging(pkt):
     pkt[TCP].dataofs, pkt[TCP].reserved, str(pkt[TCP].flags), pkt[TCP].window, 
     pkt[TCP].chksum, pkt[TCP].urgptr, str(pkt[TCP].options), str(pkt[Raw].load))
   else:
-    sql = "INSERT INTO packets (`ether.dst`, `ether.src`, `ether.type`, `ip.version`, \
+    sql = "INSERT INTO packets (`timestamp`, `ether.dst`, `ether.src`, `ether.type`, `ip.version`, \
     `ip.ihl`, `ip.tos`, `ip.len`, `ip.id`, `ip.flags`, `ip.frag`, `ip.ttl`, `ip.proto`, `ip.chksum`, \
     `ip.src`, `ip.dst`, `ip.options`, `tcp.sport`, `tcp.dport`, `tcp.seq`, `tcp.ack`, \
     `tcp.dataofs`, `tcp.reserved`, `tcp.flags`, `tcp.window`, `tcp.chksum`, `tcp.urgptr`, \
-    `tcp.options`) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
+    `tcp.options`) VALUES (" + datetime.datetime.now() + ", %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, 
     pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, str(pkt[IP].flags), pkt[IP].frag, 
