@@ -88,7 +88,7 @@ def logging(pkt):
     `tcp.sport`, `tcp.dport`, `tcp.seq`, `tcp.ack`, `tcp.dataofs`, `tcp.reserved`, \
     `tcp.flags`, `tcp.window`, `tcp.chksum`, `tcp.urgptr`, `tcp.options`) VALUES \
     (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
-    %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+    %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (datetime.now().strftime('%Y-%m-%d %H:%M:%S'), pkt[Ether].dst, 
     pkt[Ether].src, pkt[Ether].type, pkt[IP].version, pkt[IP].ihl, pkt[IP].tos, 
     pkt[IP].len, pkt[IP].id, str(pkt[IP].flags), pkt[IP].frag, pkt[IP].ttl, 
