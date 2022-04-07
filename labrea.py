@@ -28,7 +28,6 @@ def determineIPAddress():
 
 
 def spoofSYNACK(pkt):
-  print(ls(pkt))
   # Spoof the SYN ACK with a small window
   if (pkt[IP].src in answered and answered[pkt[IP].src] == pkt[IP].dport):
     return
@@ -48,7 +47,6 @@ def spoofSYNACK(pkt):
 
 
 def spoofACK(pkt):
-  print(ls(pkt))
   # ACK anything that gets sent back with a zero window
   response = IP()/TCP()
   response[IP].src = pkt[IP].dst
@@ -76,11 +74,11 @@ def logging(pkt):
     tcp.options, raw.load) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, 
-    pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, 
+    pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, str(pkt[IP].flags), pkt[IP].frag, 
     pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, 
-    pkt[IP].options, pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, 
-    pkt[TCP].dataofs, pkt[TCP].reserved, pkt[TCP].flags, pkt[TCP].window, 
-    pkt[TCP].chksum, pkt[TCP].urgptr, pkt[TCP].options, pkt[Raw].load)
+    str(pkt[IP].options), pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, 
+    pkt[TCP].dataofs, pkt[TCP].reserved, str(pkt[TCP].flags), pkt[TCP].window, 
+    pkt[TCP].chksum, pkt[TCP].urgptr, str(pkt[TCP].options), str(pkt[Raw].load))
   else:
     sql = "INSERT INTO packets (ether.dst, ether.src, ether.type, ip.version, \
     ip.ihl, ip.tos, ip.len, ip.id, ip.flags, ip.frag, ip.ttl, ip.proto, ip.chksum, \
@@ -89,11 +87,11 @@ def logging(pkt):
     tcp.options) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, \
     %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
     val = (pkt[Ether].dst, pkt[Ether].src, pkt[Ether].type, pkt[IP].version, 
-    pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, pkt[IP].flags, pkt[IP].frag, 
+    pkt[IP].ihl, pkt[IP].tos, pkt[IP].len, pkt[IP].id, str(pkt[IP].flags), pkt[IP].frag, 
     pkt[IP].ttl, pkt[IP].proto, pkt[IP].chksum, pkt[IP].src, pkt[IP].dst, 
-    pkt[IP].options, pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, 
-    pkt[TCP].dataofs, pkt[TCP].reserved, pkt[TCP].flags, pkt[TCP].window, 
-    pkt[TCP].chksum, pkt[TCP].urgptr, pkt[TCP].options)
+    str(pkt[IP].options), pkt[TCP].sport, pkt[TCP].dport, pkt[TCP].seq, pkt[TCP].ack, 
+    pkt[TCP].dataofs, pkt[TCP].reserved, str(pkt[TCP].flags), pkt[TCP].window, 
+    pkt[TCP].chksum, pkt[TCP].urgptr, str(pkt[TCP].options))
   mycursor.execute(sql, val)
   mydb.commit()
 
