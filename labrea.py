@@ -99,7 +99,7 @@ def logging(pkt):
 def packet_received(pkt):
   #pkt.show()
   if IP in pkt:
-    if pkt[IP].src != sourceIP:
+    if pkt[IP].src != sourceIP and pkt[IP].src != dbini["host"]:
       if TCP in pkt and (pkt[TCP].flags & 0x3f) == 0x02:
         spoofSYNACK(pkt)
       if TCP in pkt and (pkt[TCP].flags & 0x12) == 0x10:
